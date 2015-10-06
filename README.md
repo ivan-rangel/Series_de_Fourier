@@ -1,2 +1,2 @@
-# Series_de_Fourier
+# Series de Fourier
 Serie trigonométrica de Fourier con pyhon
