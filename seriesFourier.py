@@ -1,62 +1,66 @@
 '''Serie trigonometrica de Fourier con python'''
-import math
+from __future__ import division
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Variables de control
+T = 10
+L = T / 2
+rectangulos = 1000
+x = np.linspace(-5, 5, 1000)
 
 
-'''variables de control'''
-limInf = -math.pi
-limSup = math.pi
-rectangulos = 20
-periodo = limSup - limInf
-omega = (2*math.pi) / periodo
-
-
-'''Funcion de prueba'''
+# Funcion de prueba
 def f(x):
-    return x**2
+    return x*0+5
 
 
-'''Funciones de los ceoficientes a0, an y bn, por el metodo de los rectangulos
-arg[0] = funcion
-arg[1] = limite inf
-arg[2] = limite sup
-arg[3] = num de rectangulos
-'''
-
-'''coeficiente a0'''
-def int_coef_a0(fun, lInf, lSup, numRect):
-    deltaX = (lSup - lInf) / float(numRect)
-    inte = (fun(lInf) + fun(lSup)) / 2.0
-    k = 1
-    while k < numRect:
-        inte += fun(lInf + k*deltaX)
-        k += 1
-    return 2*(inte * deltaX)/periodo
+# coeficiente a
+def a(n, L, rect):
+    a, b = -L, L
+    dx = (b - a) / rect
+    integration = 0
+    for x in np.linspace(a, b, rect):
+        integration += f(x) * np.cos((n * np.pi * x) / L)
+    integration *= dx
+    return (1 / L) * integration
 
 
-'''coeficiente an'''
-def int_coef_an(fun, lInf, lSup, numRect):
-    deltaX = (lSup - lInf) / float(numRect)
-    inte = ((fun(lInf)*math.cos(omega*lInf)) + (fun(lSup)*math.cos(omega*lSup))) / 2.0
-    k = 1
-    while k < numRect:
-        inte += fun(lInf + k*deltaX)*math.cos(omega*(lInf + k*deltaX))
-        k += 1
-    return 2*(inte * deltaX)/periodo
+# coeficiente a
+def b(n, L, rect):
+    a, b = -L, L
+    dx = (b - a) / rect
+    integration = 0
+    for x in np.linspace(a, b, rect):
+        integration += f(x) * np.sin((n * np.pi * x) / L)
+    integration *= dx
+    return (1 / L) * integration
 
 
-'''coeficiente bn'''
-def int_coef_bn(fun, lInf, lSup, numRect):
-    deltaX = (lSup - lInf) / float(numRect)
-    inte = ((fun(lInf)*math.sin(omega*lInf)) + (fun(lSup)*math.sin(omega*lSup))) / 2.0
-    k = 1
-    while k < numRect:
-        inte += fun(lInf + k*deltaX)*math.sin(omega*(lInf + k*deltaX))
-        k += 1
-    return 2*(inte * deltaX)/periodo
+print 'Coeficientes de Fourier con n=1'
+print 'a0 = ', a(0, L, rectangulos)
+print 'an = ', a(1, L, rectangulos)
+print 'bn = ', b(1, L, rectangulos)
 
 
-'''Impresion de los resultado aproximados'''
-print 'Los resultados aproximados de los coeficientes a0, an y bn son:'
-print 'a0 = ', int_coef_a0(f, limInf, limSup, rectangulos)
-print 'an = ', int_coef_an(f, limInf, limSup, rectangulos)
-print 'bn = ', int_coef_bn(f, limInf, limSup, rectangulos)
+# Serie de Fourier Trigonometrica
+def sFourier(x, L, muestra):
+    a0 = a(0, L, rectangulos)
+    sum = np.zeros(np.size(x))
+    rng = np.arange(1, muestra + 1)
+    for i in rng:
+        sum += ((a(i, L, rectangulos) * np.cos((i * np.pi * x) / L)) +
+                (b(i, L, rectangulos) * np.sin((i * np.pi * x) / L)))
+    return (a0 / 2) + sum
+
+
+# Funcion Original
+plt.plot(x, f(x), linewidth=7, label='Funcion original')
+
+# Serie de Fourier
+plt.plot(x, sFourier(x, L, 100), '.',
+         color='yellow', linewidth=.5, label='Serie de Fourier')
+
+# Grafica de las funciones
+plt.legend(loc='best')
+plt.show()
